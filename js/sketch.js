@@ -3,7 +3,7 @@
 // Date:
 
 // This line is used for auto completion in VSCode
-/// <reference path="../../node_modules/@types/p5/global.d.ts" />
+/// <reference path="./@types/p5/global.d.ts" />
 
 // Constants - User-servicable parts
 // In a longer project I like to put these in a separate file
@@ -330,6 +330,7 @@ function preload() {
 
 // setup() function is called once when the program starts
 function setup() {
+    console.log("setup")
 
     angleMode(RADIANS)
     // place our canvas, making it fit our container

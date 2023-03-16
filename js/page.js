@@ -1,7 +1,6 @@
 let overThreshold = false;
 let scrollButton = document.getElementById('scroll-page-btn');
 
-
 if (scrollButton) {
     scrollButton.onclick = function () {
         if (overThreshold) {
