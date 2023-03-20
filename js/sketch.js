@@ -26,6 +26,20 @@ const getPureTone = (waveformType, frequency, volume) => {
     return s;
 }
 
+const findShapeUnderMouse = () => {
+    let minDist = 1000000;
+    let pickedShape = null;
+    for (var i = 0; i < ShapeTones.length; i++) {
+        var shape = ShapeTones[i];
+        var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
+        if (distance <= shape.size && distance < minDist) {
+            pickedShape = shape;
+            minDist = distance;
+        }
+    }
+    return pickedShape;
+}
+
 
 function drawPolygon(x, y, radius, npoints) {
     push();
@@ -352,7 +366,7 @@ function setup() {
     noFill();
 
     slider = createSlider(10, 500, 100);
-    slider.position(20, 10);
+    slider.position(20, -10);
     slider.style('width', 'calc(100% - 40px)');
     slider.mousePressed(function (e) { e.stopPropagation(); });
 }
@@ -400,15 +414,8 @@ function mousePressed() {
         type = random([CircleTone, TriangleTone, SquareTone, ParallelogramTone, PentagonTone])
     }
 
-    for (var i = 0; i < ShapeTones.length; i++) {
-        var shape = ShapeTones[i];
-        var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
-        if (distance <= shape.size) {
-            selectedShape = ShapeTones[i];
-            break;
-        }
-    }
 
+    selectedShape = findShapeUnderMouse();
     if (selectedShape == null) {
         selectedShape = new type(mouseX, mouseY, slider.value());
         ShapeTones.push(selectedShape);
@@ -434,14 +441,13 @@ function keyPressed(e) {
 }
 
 function mouseWheel(event) {
-    for (var i = 0; i < ShapeTones.length; i++) {
-        var shape = ShapeTones[i];
-        var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
-        if (distance <= shape.size) {
-            event.preventDefault();
-            shape.setPosition(mouseX, mouseY);
-            shape.setSize(shape.size + event.delta * 0.1)
-            break;
-        }
+    var shape = findShapeUnderMouse();
+    event.preventDefault();
+    if (shape) {
+        shape.setPosition(mouseX, mouseY);
+        shape.setSize(shape.size + event.delta * 0.1)
+        slider.value(shape.size + event.delta * 0.1)
+    } else {
+        slider.value(slider.value() + event.delta * 0.1)
     }
 }
