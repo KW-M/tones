@@ -135,7 +135,7 @@ class ShapeTone {
     }
 
     setSize(size) {
-        this.size = slider.value;
+        this.size = size;
         this.updateSound();
         return this;
     }
@@ -364,23 +364,7 @@ function setup() {
 let frameNum = 0;
 
 function draw() {
-    if (drawing) fill(255, 0, 0);
-    else fill(0);
-    rect(windowWidth - 100, windowHeight - 100, 50, 50);
-    fill(0, 127);
-    strokeWeight(2);
-    stroke(255);
-    textSize(25);
-    text("paintbrush: ", windowWidth - 200, windowHeight - 120);
-    if (drawing){
-      fill(255, 125, 0, 127);
-      text("ON", windowWidth - 75, windowHeight - 120);
-    } else {
-      text("off", windowWidth - 75, windowHeight - 120);
-    }
-    
-    fill(0, 127);
-    text("draw size: " + slider.value(), 10, 45);
+    console.log("selected shape: " + selectedShape);
 
     frameNum += 1;
     clear();
@@ -394,6 +378,30 @@ function draw() {
             return true;
         }
     })
+
+    if (drawing){ 
+        fill(255, 0, 0);
+    } else {
+        fill(125);
+    }
+
+    rect(windowWidth - 100, windowHeight - 100, 50, 50);
+
+    fill(125, 127);
+    strokeWeight(2);
+    stroke(255);
+    textSize(25);
+    text("paintbrush: ", windowWidth - 200, windowHeight - 120);
+    if (drawing){
+      fill(255, 125, 0, 127);
+      text("ON", windowWidth - 75, windowHeight - 120);
+    } else {
+      text("off", windowWidth - 75, windowHeight - 120);
+    }
+    
+    fill(125, 127);
+    var size = slider.value();
+    text("draw size: " + size, 10, 45);
 }
 
 // mousePressed() function is called once after every time a mouse button is pressed
@@ -419,15 +427,15 @@ function mousePressed() {
 
         for (var i = 0; i < ShapeTones.length; i++) {
             var shape = ShapeTones[i];
-            var distance = dist(mouseX, mouseY, shape.x, shape.y);
-            if (distance <= size/2){
-                selectedShape = shape;
+            var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
+            if (distance <= shape.size){
+                selectedShape = ShapeTones[i];
                 break;
             }
         }
 
         if (selectedShape == null){
-            var shape = new type(mouseX, mouseY, 80);
+            var shape = new type(mouseX, mouseY, slider.value());
             ShapeTones.push(shape);
         }
     }
@@ -443,8 +451,8 @@ function mousePressed() {
 
 function mouseDragged() {
     if (selectedShape != null) {
-        selectedShape.x = mouseX;
-        selectedShape.y = mouseY;
+        selectedShape.xPos = mouseX;
+        selectedShape.yPos = mouseY;
     }
   }
   
