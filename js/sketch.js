@@ -14,7 +14,6 @@ let ShapeTones = [];
 let canvasContainer;
 let shapeType = -1;
 
-let drawing = false;
 let slider;
 var selectedShape = null;
 
@@ -379,27 +378,9 @@ function draw() {
         }
     })
 
-    if (drawing){ 
-        fill(255, 0, 0);
-    } else {
-        fill(125);
-    }
-
-    rect(windowWidth - 100, windowHeight - 100, 50, 50);
-
-    fill(125, 127);
-    strokeWeight(2);
-    stroke(255);
-    textSize(25);
-    text("paintbrush: ", windowWidth - 200, windowHeight - 120);
-    if (drawing){
-      fill(255, 125, 0, 127);
-      text("ON", windowWidth - 75, windowHeight - 120);
-    } else {
-      text("off", windowWidth - 75, windowHeight - 120);
-    }
     
     fill(125, 127);
+    textSize(20);
     var size = slider.value();
     text("draw size: " + size, 10, 45);
 }
@@ -421,32 +402,19 @@ function mousePressed() {
         type = random([CircleTone, TriangleTone, SquareTone, ParallelogramTone, PentagonTone])
     }
 
-    var d = dist(mouseX, mouseY, windowWidth - 75, windowHeight - 75);
-
-    if (drawing == true && d >= 25){
-
-        for (var i = 0; i < ShapeTones.length; i++) {
-            var shape = ShapeTones[i];
-            var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
-            if (distance <= shape.size){
-                selectedShape = ShapeTones[i];
-                break;
-            }
-        }
-
-        if (selectedShape == null){
-            var shape = new type(mouseX, mouseY, slider.value());
-            ShapeTones.push(shape);
+    for (var i = 0; i < ShapeTones.length; i++) {
+        var shape = ShapeTones[i];
+        var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
+        if (distance <= shape.size){
+            selectedShape = ShapeTones[i];
+            break;
         }
     }
 
-    if ( d < 25){
-        if (drawing == false){
-          drawing = true;
-        } else {
-          drawing = false;
-        }
-      }
+    if (selectedShape == null){
+        var shape = new type(mouseX, mouseY, slider.value());
+        ShapeTones.push(shape);
+    }
 }
 
 function mouseDragged() {
