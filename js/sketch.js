@@ -14,6 +14,10 @@ let ShapeTones = [];
 let canvasContainer;
 let shapeType = -1;
 
+let drawing = false;
+let slider;
+var selectedShape = null;
+
 const getPureTone = (waveformType, frequency, volume) => {
     const s = new p5.Oscillator()
     s.setType(waveformType);
@@ -131,7 +135,7 @@ class ShapeTone {
     }
 
     setSize(size) {
-        this.size = size;
+        this.size = slider.value;
         this.updateSound();
         return this;
     }
@@ -348,6 +352,10 @@ function setup() {
     strokeWeight(2);
     noFill();
 
+    slider = createSlider(10, 500, 10);
+    slider.position(10, 10);
+    slider.style('width', '100px');
+
     var centerHorz = windowWidth / 2;
     var centerVert = windowHeight / 2;
 }
@@ -356,6 +364,24 @@ function setup() {
 let frameNum = 0;
 
 function draw() {
+    if (drawing) fill(255, 0, 0);
+    else fill(0);
+    rect(windowWidth - 100, windowHeight - 100, 50, 50);
+    fill(0, 127);
+    strokeWeight(2);
+    stroke(255);
+    textSize(25);
+    text("paintbrush: ", windowWidth - 200, windowHeight - 120);
+    if (drawing){
+      fill(255, 125, 0, 127);
+      text("ON", windowWidth - 75, windowHeight - 120);
+    } else {
+      text("off", windowWidth - 75, windowHeight - 120);
+    }
+    
+    fill(0, 127);
+    text("draw size: " + slider.value(), 10, 45);
+
     frameNum += 1;
     clear();
     background(0, 0, 0);
@@ -372,7 +398,6 @@ function draw() {
 
 // mousePressed() function is called once after every time a mouse button is pressed
 function mousePressed() {
-    // code to run when mouse is pressed
     let type;
     if (shapeType === 0) {
         type = CircleTone
@@ -388,9 +413,46 @@ function mousePressed() {
         type = random([CircleTone, TriangleTone, SquareTone, ParallelogramTone, PentagonTone])
     }
 
-    var shape = new type(mouseX, mouseY, 80);
-    ShapeTones.push(shape);
+    var d = dist(mouseX, mouseY, windowWidth - 75, windowHeight - 75);
+
+    if (drawing == true && d >= 25){
+
+        for (var i = 0; i < ShapeTones.length; i++) {
+            var shape = ShapeTones[i];
+            var distance = dist(mouseX, mouseY, shape.x, shape.y);
+            if (distance <= size/2){
+                selectedShape = shape;
+                break;
+            }
+        }
+
+        if (selectedShape == null){
+            var shape = new type(mouseX, mouseY, 80);
+            ShapeTones.push(shape);
+        }
+    }
+
+    if ( d < 25){
+        if (drawing == false){
+          drawing = true;
+        } else {
+          drawing = false;
+        }
+      }
 }
+
+function mouseDragged() {
+    if (selectedShape != null) {
+        selectedShape.x = mouseX;
+        selectedShape.y = mouseY;
+    }
+  }
+  
+  // Mouse released function
+  function mouseReleased() {
+    selectedShape = null;
+  }
+  
 
 function keyPressed(e) {
     // code to run when a key is pressed
