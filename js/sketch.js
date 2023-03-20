@@ -4,6 +4,7 @@
 
 // This line is used for auto completion in VSCode
 /// <reference path="./@types/p5/global.d.ts" />
+/// <reference path="./@types/p5/lib/addons/p5.sound.d.ts" />
 
 // Constants - User-servicable parts
 // In a longer project I like to put these in a separate file
@@ -309,10 +310,9 @@ class PentagonTone extends ShapeTone {
     }
 
     updateSound() {
+        const freq = this.xPos / width + this.yPos / height;
         const loudness = this.size * SHAPE_SIZE_TO_LOUDNESS_RATIO
-        const xFreq = this.xPos / width * 500
-        const yFreq = this.yPos / height * 500
-        // this.sounds[0].freq(xFreq)
+        this.sounds[0].rate(freq)
         this.sounds[0].setVolume(loudness)
         return this;
     }
@@ -351,12 +351,10 @@ function setup() {
     strokeWeight(2);
     noFill();
 
-    slider = createSlider(10, 500, 10);
-    slider.position(10, 10);
-    slider.style('width', '100px');
-
-    var centerHorz = windowWidth / 2;
-    var centerVert = windowHeight / 2;
+    slider = createSlider(10, 500, 100);
+    slider.position(20, 10);
+    slider.style('width', 'calc(100% - 40px)');
+    slider.mousePressed(function (e) { e.stopPropagation(); });
 }
 
 
@@ -378,7 +376,7 @@ function draw() {
         }
     })
 
-    
+
     fill(125, 127);
     textSize(20);
     var size = slider.value();
@@ -405,33 +403,45 @@ function mousePressed() {
     for (var i = 0; i < ShapeTones.length; i++) {
         var shape = ShapeTones[i];
         var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
-        if (distance <= shape.size){
+        if (distance <= shape.size) {
             selectedShape = ShapeTones[i];
             break;
         }
     }
 
-    if (selectedShape == null){
-        var shape = new type(mouseX, mouseY, slider.value());
-        ShapeTones.push(shape);
+    if (selectedShape == null) {
+        selectedShape = new type(mouseX, mouseY, slider.value());
+        ShapeTones.push(selectedShape);
     }
 }
 
 function mouseDragged() {
     if (selectedShape != null) {
-        selectedShape.xPos = mouseX;
-        selectedShape.yPos = mouseY;
+        selectedShape.setPosition(mouseX, mouseY);
     }
-  }
-  
-  // Mouse released function
-  function mouseReleased() {
+}
+
+// Mouse released function
+function mouseReleased() {
     selectedShape = null;
-  }
-  
+}
+
 
 function keyPressed(e) {
     // code to run when a key is pressed
     shapeType = key.charCodeAt(0) - '0'.charCodeAt(0);
     console.log("keyPressed", shapeType);
+}
+
+function mouseWheel(event) {
+    for (var i = 0; i < ShapeTones.length; i++) {
+        var shape = ShapeTones[i];
+        var distance = dist(mouseX, mouseY, shape.xPos, shape.yPos);
+        if (distance <= shape.size) {
+            event.preventDefault();
+            shape.setPosition(mouseX, mouseY);
+            shape.setSize(shape.size + event.delta * 0.1)
+            break;
+        }
+    }
 }
